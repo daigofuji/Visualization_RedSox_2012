@@ -1,0 +1,286 @@
+<!DOCTYPE html>  <!--[if lt IE 7 ]> <html lang="en" class="ie ie6"> <![endif]-->  <!--[if IE 7 ]> <html lang="en" class="ie ie7"> <![endif]-->  <!--[if IE 8 ]> <html lang="en" class="ie ie8"> <![endif]-->  <!--[if IE 9 ]> <html lang="en" class="ie ie9"> <![endif]-->  <!--[if (gt IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->  <head>  
+<title>Baseball Data visualizatrion by Daigo Fujiwara</title> 
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">  
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">  
+
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
+
+
+    <style>
+	/* full width graphic  */
+	.section-nav {display: none;}
+	div.article {width: 100%;margin: 0;}
+	.aside {display: none;}
+	.interactive-body {float: left; width: 100%;}
+
+	#gfx-loading {font-family:"BentonSans", BentonSans, sans-serif; text-align:center; width: 100%; height: 100px; }
+	#gfx-loading p {margin:10px; font-weight:bold; color:#999;}
+	#gfx-loading img {margin:20px auto;}
+
+	#charts { overflow:hidden; margin-bottom:100px;}
+	.year {width:200px; height:170px; float:left; margin: 0 3px 10px 0; background:#ffffff; border:#fff 1px solid;}
+	.hover {background:#e5e5e5; border:#fba500 1px solid;}
+	#gfx-wrap { position:relative; font-family:"BentonSans", BentonSans, sans-serif;}
+	#gfx-wrap br, #gfx-loading br {display:block;}
+	#gfx-wrap h1 {font-size: 130%;margin: 1em 0 .5em;}
+
+
+	#gfx-tooltip { padding: 5px; width: auto; min-width:78px; max-width:220px; background-color:#fff; border: 2px #ccc solid; position: absolute; top: 50px; z-index:1000; font-size:14px; text-align:left; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;}
+	#gfx-tooltip .tip, #gfx-tooltip .tip-inner { position: absolute; width:0; height:0; border-top-width: 0; background: none; }
+	#gfx-tooltip .tip { border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 7px solid #ccc; top: -7px; right: auto; left: 50%; margin-left: -5px; }
+	#gfx-tooltip .tip-inner { border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 7px solid #fff; bottom: auto; top: 2px; left: -4px; }
+
+
+
+	.gfx-under {position:absolute; top:0;left:0; }
+	.figcaption {margin:4em 0 3em; clear:both;}
+	.aside {clear:both;}
+	@media only screen and (min-width: 480px) {
+		/* responsive */
+	}
+
+
+	#gfx-landscape {display:none; width:240px; margin:0 auto;font-family:"BentonSans", BentonSans, sans-serif; font-size:10px;} 
+	#gfx-landscape-turn {width:30px; height:20px;}
+	@media only screen and (max-device-width: 800px) and (orientation:portrait) {
+		#gfx-landscape {display:block;}
+	}
+
+
+	</style>
+
+
+
+<body class="type-home"> 
+	<div class="container">  
+
+
+<div id="gfx-wrap">
+	
+		<h1>Just how bad was The Boston Red Sox's 2012 season?</h1>
+		<p><strong>Visualizing the win-loss records of the Boston Red Sox.</strong> The Red Sox have had only 8 losing seasons since 1977. The above and below .500 for each of the last 35 years: </p>
+		
+	
+		<div id="gfx-loading" style="height:800px">
+		<p> <img src="ajax-loader.gif" alt="Loading" /><br/>Loading...</p>
+		</div>
+		
+		<div id="charts">
+		</div>
+		
+		<div id="gfx-tooltip" style="display: none; ">
+			<div class="tip">
+				<div class="tip-inner"></div>
+			</div>
+			<h5><span id="tip-title"></span></h5>
+			<span id="tip-subtitle"></span>
+		</div>
+		
+			<!-- remove this if you don't need landscape/portrait warning
+			<div id="gfx-landscape"><img id="gfx-landscape-turn" src="http://c.o0bg.com/rw//Boston/2011-2020/WebGraphics/Sports/BostonGlobe.com/2012/04/greenmonster/img/turn.png"  width="31" height="20" alt="" align="left" /> For a better viewing experience,<br/>turn the device into landscape mode</div> -->
+
+</div>
+
+
+
+<div class="figcaption">
+<p class="source">SOURCES: MLB; Boston Red Sox; <a href="http://www.baseball-reference.com/teams/BOS/">Baseball-References.com</a></p>
+<P class="credit" style="float:right"><a href="https://twitter.com/daigofuji">Daigo Fujiwara</a> (Originally created for the Boston Globe)</P>
+</div>
+
+
+	<!-- PUT GRAPHIC ABOVE HERE : ONLY CONTENT ABOVE HERE SHOULD GO INTO THE JPT -->
+	<!-- ######################################################### -->
+	<!-- ######################################################### -->
+	<!-- ######################################################### -->
+    
+    
+    
+
+    
+
+
+
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="sox-data.js"></script>
+
+<script type="text/javascript">
+
+
+
+//console.log(soxdata[0].data); //this returns array with 162 objects
+
+	$(window).load(function() {
+			//code
+			
+			//Create renderTo contnt area inside #charts like: <div id="y2011" class="year won"></div>
+
+			var html = "";
+			for (var yr in soxdata) {
+				html = html + '<div id="'
+					+ soxdata[yr].name
+					+ '" class="year" data-title="'
+					+ soxdata[yr].title
+					+ '" data-subtitle="'
+					+ soxdata[yr].subtitle
+					+ '"></div>';
+			}
+			$("#charts").append(html);
+
+			//load scripts after jquery 
+			//http://c.o0bg.com/rw/Boston/2011-2020/WebGraphics/Metro/BostonGlobe.com/library/js/highcharts.js
+			$.getScript('highcharts.js', function() {
+      
+				var chart;
+				$(document).ready(function() {
+
+
+					//Setting the global default
+					Highcharts.setOptions({
+						chart: {
+							type: 'area',
+							marginRight: 2,
+							marginBottom: 5
+						},
+						colors: ['#173368'],
+						title: {
+							style: {
+								color: '#000000',
+								fontWeight: 'bold',
+								fontSize:'13px'
+							},
+							align: 'left',
+							floating: true,
+							x: 35,
+							y: 15
+						},
+						subtitle: {
+							align: 'left',
+							floating: true
+						},
+						xAxis: {
+							categories: []
+						},
+						yAxis: {
+							plotLines: [{
+								value: 0,
+								width: 1,
+								color: '#cccccc'
+							}],
+							title: {
+								text: '',
+								margin: 0
+							},
+							plotLines: [{
+								value: 0,
+								width: 1,
+								color: '#cccccc'
+							}],
+							min: -20,
+							max: 40
+						},
+						tooltip: {
+							borderWidth: 0,
+							formatter: function() {
+									return '<b>'+ this.point.name +'</b><br/>'+
+									this.point.result;
+							}
+						},
+						 plotOptions: {
+							series: {
+								step: true,
+								marker: {
+									enabled: false
+								}
+							}
+						},
+						legend: {
+							enabled: false
+						},
+						credits: {
+							enabled: false
+						}
+					});	// end setting global default for all charts
+
+
+					// Render all the charts!
+					for (var yr in soxdata) {
+					
+					var options = {
+							chart: {
+								renderTo: soxdata[yr].name,
+							},
+							title: {
+								text: soxdata[yr].year //soxdata[yr].title
+							},
+							subtitle: {
+								text: '' //soxdata[yr].subtitle
+							},
+							series: [{
+								name: soxdata[yr].name,
+								data: soxdata[yr].data
+								}]
+							};
+							
+						if (soxdata[yr].won < 1 ) { //losing year
+							options.series[0].color = '#aa0016';
+						}
+
+					var chart = new Highcharts.Chart(options);
+					}
+				});
+				
+			});			
+			
+
+
+		// showing tooltips
+				$(".year").hover( function () {
+					$("#tip-subtitle").text($(this).attr("data-subtitle"));
+					$("#tip-title").text($(this).attr("data-title"));
+					
+					var leftposition = $(this).offset().left - $(".year").offset().left;
+					var thisw = $(this).width()/2;
+					var tipw = $("#gfx-tooltip").width()/2;
+					var tipx = leftposition + thisw - tipw -4; // 
+					$("#gfx-tooltip").css("left", tipx + "px"); 
+					
+					var tipy = $(this).offset().top - $("#charts").offset().top + $(this).height() + 90; // 
+					$("#gfx-tooltip").css("top", tipy + "px");
+			
+					$("#gfx-tooltip").fadeIn("fast");
+					
+					//debug
+					//console.log("hover.");
+					//var dify = tipy-$(this).offset().top;
+					//var difx = tipx-$(this).offset().left;
+					//console.log("Tip Y is "+ tipy +" and this top is " + $(this).offset().top + ". This height?: " + $(this).height());
+					//console.log("Tip X is "+ tipx +" and this left is " + $(this).offset().left + ". Difference: " + difx );
+					 $(this).addClass("hover")
+					
+				}, function (){
+					$("#gfx-tooltip").hide();
+					 $(this).removeClass("hover")
+				}); 
+
+			//When ready remove loading animation.
+			$('#gfx-loading').slideUp();
+			
+	});
+
+
+</script>
+
+
+
+
+
+
+
+
+</body>  </html>
